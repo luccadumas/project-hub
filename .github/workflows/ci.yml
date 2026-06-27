@@ -1,0 +1,84 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - name: Run tests and coverage check
+        working-directory: project-hub-api
+        run: mvn -B verify
+
+  frontend:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - package-manager: npm
+            install-command: npm ci
+            run-via: npm run
+          - package-manager: yarn
+            install-command: yarn install --frozen-lockfile
+            run-via: yarn
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: ${{ matrix.package-manager }}
+          cache-dependency-path: project-hub-web/${{ matrix.package-manager == 'npm' && 'package-lock.json' || 'yarn.lock' }}
+      - name: Install dependencies (${{ matrix.package-manager }})
+        working-directory: project-hub-web
+        run: |
+          if [ "${{ matrix.package-manager }}" = "yarn" ]; then
+            corepack enable
+          fi
+          ${{ matrix.install-command }}
+      - name: Lint frontend (${{ matrix.package-manager }})
+        working-directory: project-hub-web
+        run: ${{ matrix.run-via }} lint
+      - name: Test frontend (${{ matrix.package-manager }})
+        working-directory: project-hub-web
+        env:
+          VITE_API_URL: http://localhost:8090
+        run: ${{ matrix.run-via }} test
+      - name: Build frontend (${{ matrix.package-manager }})
+        working-directory: project-hub-web
+        env:
+          VITE_API_URL: http://localhost:8090
+        run: ${{ matrix.run-via }} build
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare environment
+        run: cp .env.example .env
+      - name: Build and start stack
+        run: docker compose up -d --build
+      - name: Wait for API health
+        run: |
+          for i in $(seq 1 30); do
+            if curl -fsS http://localhost:8090/actuator/health; then
+              exit 0
+            fi
+            sleep 5
+          done
+          docker compose logs project-hub-api
+          exit 1
+      - name: Smoke test frontend
+        run: curl -fsS http://localhost:5190
+      - name: Tear down stack
+        if: always()
+        run: docker compose down -v

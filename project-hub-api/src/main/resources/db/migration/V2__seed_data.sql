@@ -1,0 +1,1 @@
+-- Demo seed moved to classpath:db/seed/dev (Spring profile: local)

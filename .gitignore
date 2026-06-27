@@ -1,0 +1,29 @@
+# Compiled output
+target/
+dist/
+build/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Node
+node_modules/
+
+# Environment
+.env
+.env.local
+
+# OS
+.DS_Store
+
+# Logs
+*.log
+
+# Test coverage
+coverage/
+.jacoco/
+
+# Maven wrapper (optional)
+.mvn/wrapper/maven-wrapper.jar

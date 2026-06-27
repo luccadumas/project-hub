@@ -1,0 +1,19 @@
+spring:
+  profiles:
+    active: local
+  datasource:
+    url: jdbc:postgresql://localhost:5432/project_hub
+    username: project_hub
+    password: project_hub
+  flyway:
+    enabled: true
+
+project-hub:
+  external-members:
+    base-url: http://localhost:8080
+  security:
+    cors-allowed-origins: http://localhost:5190,http://localhost:5173
+  jwt:
+    secret: test-secret-key-at-least-32-characters-long
+    access-token-expiration-minutes: 15
+    refresh-token-expiration-days: 7

@@ -1,0 +1,66 @@
+services:
+  project-hub-db:
+    image: postgres:16-alpine
+    container_name: project-hub-db
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "${DB_HOST_PORT}:5432"
+    volumes:
+      - project_hub_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  project-hub-api:
+    build:
+      context: ./project-hub-api
+      dockerfile: Dockerfile
+    container_name: project-hub-api
+    env_file:
+      - .env
+    depends_on:
+      project-hub-db:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      EXTERNAL_MEMBERS_BASE_URL: ${EXTERNAL_MEMBERS_BASE_URL}
+      PROJECT_HUB_CORS_ALLOWED_ORIGINS: ${PROJECT_HUB_CORS_ALLOWED_ORIGINS}
+      PROJECT_HUB_JWT_SECRET: ${PROJECT_HUB_JWT_SECRET}
+      PROJECT_HUB_JWT_ACCESS_EXPIRATION_MINUTES: ${PROJECT_HUB_JWT_ACCESS_EXPIRATION_MINUTES}
+      PROJECT_HUB_JWT_REFRESH_EXPIRATION_DAYS: ${PROJECT_HUB_JWT_REFRESH_EXPIRATION_DAYS}
+      HIBERNATE_FORMAT_SQL: ${HIBERNATE_FORMAT_SQL}
+      SERVER_PORT: ${SERVER_PORT}
+      SPRING_PROFILES_ACTIVE: local
+    ports:
+      - "${API_HOST_PORT}:${SERVER_PORT}"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  project-hub-web:
+    build:
+      context: ./project-hub-web
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL}
+    container_name: project-hub-web
+    depends_on:
+      project-hub-api:
+        condition: service_healthy
+    ports:
+      - "${WEB_HOST_PORT}:80"
+
+volumes:
+  project_hub_data:
