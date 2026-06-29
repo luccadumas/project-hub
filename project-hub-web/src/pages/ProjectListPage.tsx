@@ -31,6 +31,7 @@ import { LoadingState } from '../components/LoadingState';
 import { PageHeader } from '../components/PageHeader';
 import { useAuth } from '../context/AuthContext';
 import { useDebouncedValue } from '../hooks/useDebouncedValue';
+import { getApiErrorMessage } from '../utils/errors';
 import type { ProjectStatus, RiskLevel } from '../types';
 import {
   formatCurrency,
@@ -141,7 +142,10 @@ export function ProjectListPage() {
 
         {deleteMutation.isError && (
           <Alert severity="error" sx={{ m: 2 }}>
-            Não foi possível excluir o projeto. Verifique o status atual.
+            {getApiErrorMessage(
+              deleteMutation.error,
+              'Não foi possível excluir o projeto.',
+            )}
           </Alert>
         )}
 

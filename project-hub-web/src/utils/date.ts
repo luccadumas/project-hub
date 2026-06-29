@@ -92,3 +92,22 @@ export function toApiDate(value: string | null | undefined): string | null {
   const fromIso = parseApiDate(value);
   return fromIso ? format(fromIso, DATE_API_FORMAT) : null;
 }
+
+export function dateToIso(value: Date | null): string {
+  if (!value || !isValid(value)) {
+    return '';
+  }
+
+  return format(value, DATE_API_FORMAT);
+}
+
+export function isIsoDateBefore(isoDate: string, isoReference: string): boolean {
+  const date = parseApiDate(isoDate);
+  const reference = parseApiDate(isoReference);
+
+  if (!date || !reference) {
+    return false;
+  }
+
+  return date < reference;
+}

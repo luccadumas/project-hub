@@ -37,6 +37,7 @@ import {
 } from '../utils/formatters';
 import { formatDate } from '../utils/date';
 import { filterProjectEmployees } from '../utils/members';
+import { getApiErrorMessage } from '../utils/errors';
 
 function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
@@ -182,7 +183,12 @@ export function ProjectDetailPage() {
                 ))}
               </TextField>
               {statusMutation.isError && (
-                <Alert severity="error" sx={{ mt: 2 }}>Transição de status inválida</Alert>
+                <Alert severity="error" sx={{ mt: 2 }}>
+                  {getApiErrorMessage(
+                    statusMutation.error,
+                    'Não foi possível atualizar o status do projeto.',
+                  )}
+                </Alert>
               )}
               <Button
                 fullWidth
@@ -226,7 +232,13 @@ export function ProjectDetailPage() {
                 })}
               </Box>
               {membersMutation.isError && (
-                <Alert severity="error" sx={{ mt: 2 }}>Falha ao alocar membros</Alert>
+                <Alert severity="error" sx={{ mt: 2 }}>
+                  {getApiErrorMessage(
+                    membersMutation.error,
+                    'Não foi possível atualizar a equipe do projeto.',
+                    { members: employees },
+                  )}
+                </Alert>
               )}
               <Button
                 fullWidth

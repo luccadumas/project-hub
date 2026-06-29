@@ -54,10 +54,15 @@ public class MemberAllocationService {
 
             if (!role.canBeAllocatedToProject()) {
                 throw new BusinessException(
-                        "Only members with role 'employee' can be allocated to projects. Member id: " + memberId);
+                        "Only members with role 'employee' can be allocated to projects. Member: "
+                                + externalMember.getName());
             }
 
-            validateActiveProjectLimit(memberId, activeProjectCounts, memberIdsInCurrentProject);
+            validateActiveProjectLimit(
+                    externalMember.getName(),
+                    memberId,
+                    activeProjectCounts,
+                    memberIdsInCurrentProject);
         }
 
         Map<Long, Member> persistedMembers = memberRepository.findAllById(memberIds).stream()
@@ -97,6 +102,7 @@ public class MemberAllocationService {
     }
 
     private void validateActiveProjectLimit(
+            String memberName,
             Long memberId,
             Map<Long, Long> activeProjectCounts,
             Set<Long> memberIdsInCurrentProject) {
@@ -108,7 +114,7 @@ public class MemberAllocationService {
 
         if (activeProjects >= MAX_ACTIVE_PROJECTS_PER_MEMBER) {
             throw new BusinessException(
-                    "Member id " + memberId + " is already allocated to "
+                    memberName + " is already allocated to "
                             + MAX_ACTIVE_PROJECTS_PER_MEMBER + " active projects");
         }
     }

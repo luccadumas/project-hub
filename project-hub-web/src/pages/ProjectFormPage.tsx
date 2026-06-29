@@ -27,10 +27,11 @@ import { CurrencyInput } from '../components/CurrencyInput';
 import { DateInput } from '../components/DateInput';
 import { LoadingState } from '../components/LoadingState';
 import { PageHeader } from '../components/PageHeader';
-import { parseApiDate } from '../utils/date';
+import { parseApiDate, isIsoDateBefore } from '../utils/date';
 import { formatMemberLabel } from '../utils/formatters';
 import { queryKeys } from '../api/queryKeys';
 import { filterProjectEmployees, filterProjectManagers } from '../utils/members';
+import { getApiErrorMessage } from '../utils/errors';
 
 const isoDateField = (message: string) =>
   z.string().min(1, message).refine((value) => parseApiDate(value) !== null, 'Data inválida');
@@ -47,6 +48,22 @@ const schema = z.object({
   description: z.string().optional(),
   managerId: z.number().positive('Gerente obrigatório'),
   memberIds: z.array(z.number()).min(1, 'Selecione ao menos 1 membro').max(10, 'Máximo de 10 membros'),
+}).superRefine((data, ctx) => {
+  if (isIsoDateBefore(data.expectedEndDate, data.startDate)) {
+    ctx.addIssue({
+      code: 'custom',
+      message: 'Previsão de término não pode ser anterior à data de início',
+      path: ['expectedEndDate'],
+    });
+  }
+
+  if (data.actualEndDate && isIsoDateBefore(data.actualEndDate, data.startDate)) {
+    ctx.addIssue({
+      code: 'custom',
+      message: 'Data real de término não pode ser anterior à data de início',
+      path: ['actualEndDate'],
+    });
+  }
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -73,6 +90,7 @@ export function ProjectFormPage() {
     control,
     handleSubmit,
     reset,
+    watch,
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -125,6 +143,7 @@ export function ProjectFormPage() {
 
   const managers = filterProjectManagers(membersQuery.data ?? []);
   const employees = filterProjectEmployees(membersQuery.data ?? []);
+  const startDate = watch('startDate');
 
   return (
     <AppLayout>
@@ -135,14 +154,18 @@ export function ProjectFormPage() {
 
       {mutation.isError && (
         <Alert severity="error" sx={{ mb: 2 }}>
-          Erro ao salvar projeto. Verifique os dados e regras de negócio.
+          {getApiErrorMessage(
+            mutation.error,
+            'Não foi possível salvar o projeto. Revise os dados informados e tente novamente.',
+            { members: membersQuery.data },
+          )}
         </Alert>
       )}
 
       <ContentCard>
         <Box component="form" onSubmit={handleSubmit((values: FormValues) => mutation.mutate(values))}>
           <Typography variant="subtitle1" sx={{ mb: 2 }}>Dados gerais</Typography>
-          <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { md: '2fr 1fr' } }}>
+          <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { xs: '1fr', md: '2fr 1fr' } }}>
             <TextField fullWidth label="Nome" {...register('name')} error={!!errors.name} helperText={errors.name?.message} />
             <Controller
               name="totalBudget"
@@ -157,6 +180,22 @@ export function ProjectFormPage() {
                 />
               )}
             />
+          </Box>
+
+          <Box
+            sx={{
+              display: 'grid',
+              gap: 2,
+              mt: 2,
+              alignItems: 'start',
+              gridTemplateColumns: {
+                xs: '1fr',
+                md: isEdit
+                  ? 'minmax(140px, 1fr) minmax(140px, 1fr) minmax(140px, 1fr) minmax(200px, 2fr)'
+                  : 'minmax(140px, 1fr) minmax(140px, 1fr) minmax(200px, 2fr)',
+              },
+            }}
+          >
             <Controller
               name="startDate"
               control={control}
@@ -178,6 +217,7 @@ export function ProjectFormPage() {
                   label="Previsão de término"
                   value={field.value}
                   onChange={field.onChange}
+                  minDate={startDate}
                   error={!!errors.expectedEndDate}
                   helperText={errors.expectedEndDate?.message}
                 />
@@ -192,6 +232,7 @@ export function ProjectFormPage() {
                     label="Data real de término"
                     value={field.value ?? ''}
                     onChange={field.onChange}
+                    minDate={startDate}
                     error={!!errors.actualEndDate}
                     helperText={errors.actualEndDate?.message}
                   />
@@ -210,7 +251,8 @@ export function ProjectFormPage() {
                   onChange={(event) => field.onChange(Number(event.target.value))}
                   onBlur={field.onBlur}
                   error={!!errors.managerId}
-                  helperText={errors.managerId?.message}
+                  helperText={errors.managerId?.message ?? '\u00a0'}
+                  slotProps={{ formHelperText: { sx: { minHeight: '1.25em' } } }}
                 >
                   {managers.map((member) => (
                     <MenuItem key={member.id} value={member.id}>
