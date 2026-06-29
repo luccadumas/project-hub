@@ -118,7 +118,7 @@ class BusinessRulesIntegrationTest {
 
         assertThatThrownBy(() -> projectService.updateStatus(created.getId(), cancelRequest))
                 .isInstanceOf(BusinessException.class)
-                .hasMessageContaining("Não é possível cancelar");
+                .hasMessageContaining("Cannot cancel");
 
         var filtered = projectService.findAll(
                 "Integracao E2E",
