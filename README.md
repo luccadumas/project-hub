@@ -1,6 +1,6 @@
 # Project Hub
 
-Sistema fullstack para gerenciamento de portfólio de projetos: ciclo de vida, equipe, orçamento, classificação de risco, workflow de status e relatório consolidado.
+Fullstack application for project portfolio management: lifecycle, team allocation, budget, risk classification, status workflow, and consolidated reporting.
 
 ## Stack
 
@@ -16,19 +16,19 @@ Sistema fullstack para gerenciamento de portfólio de projetos: ciclo de vida, e
 - React Router, TanStack Query, React Hook Form, Zod
 - Axios, Material UI, date-fns
 
-### Infraestrutura
+### Infrastructure
 - Docker Compose
 - PostgreSQL 16
 - GitHub Actions (CI)
 
-## Início rápido
+## Quick start
 
 ```bash
 cp .env.example .env
 docker compose up -d --build
 ```
 
-| Serviço    | URL |
+| Service    | URL |
 |------------|-----|
 | Frontend   | http://localhost:5190 |
 | API        | http://localhost:8090 |
@@ -36,18 +36,18 @@ docker compose up -d --build
 | Health     | http://localhost:8090/actuator/health |
 | PostgreSQL | localhost:5435 |
 
-### Credenciais de desenvolvimento
+### Development credentials
 
-Com `SPRING_PROFILES_ACTIVE=local` (padrão no Docker Compose), seeds em `db/seed/dev/` criam:
+With `SPRING_PROFILES_ACTIVE=local` (default in Docker Compose), seeds in `db/seed/dev/` create:
 
-| Usuário | Senha    | Permissões |
-|---------|----------|------------|
-| admin   | admin123 | CRUD, status, relatórios |
-| user    | user123  | Consulta e relatórios |
+| User  | Password | Permissions |
+|-------|----------|-------------|
+| admin | admin123 | CRUD, status changes, reports |
+| user  | user123  | Read-only access and reports |
 
-## Configuração
+## Configuration
 
-Copie os arquivos de exemplo antes de executar:
+Copy the example files before running:
 
 ```bash
 cp .env.example .env
@@ -55,18 +55,18 @@ cp project-hub-api/.env.example project-hub-api/.env
 cp project-hub-web/.env.example project-hub-web/.env
 ```
 
-| Variável | Descrição |
-|----------|-----------|
-| `SPRING_DATASOURCE_*` | Conexão PostgreSQL |
-| `PROJECT_HUB_JWT_SECRET` | Chave para assinatura JWT |
-| `PROJECT_HUB_CORS_ALLOWED_ORIGINS` | Origens permitidas no CORS |
-| `PROJECT_HUB_BOOTSTRAP_ADMIN_*` | Admin inicial em produção (se `app_users` vazio) |
-| `SPRING_PROFILES_ACTIVE=local` | Ativa seeds de desenvolvimento |
-| `VITE_API_URL` | URL da API consumida pelo frontend |
+| Variable | Description |
+|----------|-------------|
+| `SPRING_DATASOURCE_*` | PostgreSQL connection |
+| `PROJECT_HUB_JWT_SECRET` | JWT signing secret |
+| `PROJECT_HUB_CORS_ALLOWED_ORIGINS` | Allowed CORS origins |
+| `PROJECT_HUB_BOOTSTRAP_ADMIN_*` | Initial admin in production (when `app_users` is empty) |
+| `SPRING_PROFILES_ACTIVE=local` | Enables development seeds |
+| `VITE_API_URL` | API URL used by the frontend |
 
-> **Docker Compose:** variáveis exportadas no shell (`SPRING_DATASOURCE_*`) têm prioridade sobre o `.env`. Remova conflitos com `unset` antes de subir os containers.
+> **Docker Compose:** shell-exported variables (`SPRING_DATASOURCE_*`) override `.env`. Run `unset` on conflicting values before starting containers.
 
-## Arquitetura
+## Architecture
 
 ```
 Controller → Service → Repository
@@ -76,15 +76,15 @@ Controller → Service → Repository
       DTO ↔ Mapper ↔ Entity
 ```
 
-Principais decisões:
-- DTOs em toda a API — sem exposição de entidades JPA
-- `DefaultRiskClassifier` — regra de risco centralizada (Strategy)
-- `ProjectStatusWorkflow` — transições de status validadas no domínio
-- Autenticação JWT com refresh token
-- Flyway — schema versionado; seeds separados por ambiente
-- Integração externa de membros via `RestClient` (mock local em dev)
+Key decisions:
+- DTOs across the API — no JPA entity exposure
+- `DefaultRiskClassifier` — centralized risk rules (Strategy)
+- `ProjectStatusWorkflow` — status transitions validated in the domain
+- JWT authentication with refresh tokens
+- Flyway — versioned schema; seeds separated by environment
+- External member integration via `RestClient` (local mock in dev)
 
-## Estrutura
+## Structure
 
 ```
 project-hub/
@@ -93,10 +93,10 @@ project-hub/
 └── project-hub-web/
 ```
 
-## Desenvolvimento local (sem Docker completo)
+## Local development (without full Docker)
 
 ```bash
-# Banco
+# Database
 docker compose up -d project-hub-db
 
 # API
@@ -106,7 +106,7 @@ cd project-hub-api && mvn spring-boot:run
 cd project-hub-web && npm ci && npm run dev
 ```
 
-## Qualidade
+## Quality
 
 ```bash
 # Backend
@@ -116,22 +116,22 @@ cd project-hub-api && mvn verify
 cd project-hub-web && npm run lint && npm run test && npm run build
 ```
 
-Cobertura mínima de 70% em `domain` e `service` (JaCoCo).
+Minimum coverage of 70% in `domain` and `service` (JaCoCo).
 
 ## API
 
-Autenticação via `POST /api/auth/login` (access + refresh token).
+Authenticate via `POST /api/auth/login` (access + refresh token).
 
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| GET | `/api/projects` | Lista paginada com filtros |
-| POST | `/api/projects` | Cria projeto (ADMIN) |
-| PATCH | `/api/projects/{id}/status` | Altera status (ADMIN) |
-| GET | `/api/reports/portfolio` | Relatório consolidado |
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/projects` | Paginated list with filters |
+| POST | `/api/projects` | Create project (ADMIN) |
+| PATCH | `/api/projects/{id}/status` | Update status (ADMIN) |
+| GET | `/api/reports/portfolio` | Consolidated report |
 | GET | `/actuator/health` | Health check |
 
-Documentação completa: `/swagger-ui.html`
+Full documentation: `/swagger-ui.html`
 
-## Licença
+## License
 
 MIT

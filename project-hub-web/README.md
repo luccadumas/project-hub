@@ -1,5 +1,5 @@
 # Project Hub — Frontend
 
-Interface web do Project Hub (React + TypeScript + Vite).
+Web interface for Project Hub (React + TypeScript + Vite).
 
-Documentação completa na [raiz do repositório](../README.md).
+See the [repository root](../README.md) for full documentation.
