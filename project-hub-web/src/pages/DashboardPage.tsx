@@ -51,15 +51,15 @@ export function DashboardPage() {
   }
 
   const report = reportQuery.data!;
-  const activeProjects = (report.projectsCountByStatus.EM_ANDAMENTO ?? 0)
-    + (report.projectsCountByStatus.PLANEJADO ?? 0)
-    + (report.projectsCountByStatus.INICIADO ?? 0);
+  const activeProjects = (report.projectsCountByStatus.IN_PROGRESS ?? 0)
+    + (report.projectsCountByStatus.PLANNED ?? 0)
+    + (report.projectsCountByStatus.STARTED ?? 0);
 
   return (
     <AppLayout>
       <PageHeader
         title="Dashboard"
-        subtitle="Visao executiva do portfolio de projetos"
+        subtitle="Visão executiva do portfólio de projetos"
       />
 
       <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mb: 3 }}>
@@ -77,19 +77,19 @@ export function DashboardPage() {
         />
         <StatCard
           title="Encerrados"
-          value={report.projectsCountByStatus.ENCERRADO ?? 0}
+          value={report.projectsCountByStatus.COMPLETED ?? 0}
           icon={<CheckCircleOutlineOutlinedIcon />}
           accent="#059669"
         />
         <StatCard
-          title="Duracao media (dias)"
+          title="Duração média (dias)"
           value={Math.round(report.averageClosedProjectDurationDays)}
           icon={<ScheduleOutlinedIcon />}
           accent="#7c3aed"
         />
       </Box>
 
-      <ContentCard title="Projetos recentes" subtitle="Ultimas atualizacoes do portfolio">
+      <ContentCard title="Projetos recentes" subtitle="Últimas atualizações do portfólio">
         {projectsQuery.data?.content.length === 0 ? (
           <Typography color="text.secondary">Nenhum projeto encontrado</Typography>
         ) : (
@@ -99,7 +99,7 @@ export function DashboardPage() {
                 <TableCell>Projeto</TableCell>
                 <TableCell>Status</TableCell>
                 <TableCell>Risco</TableCell>
-                <TableCell align="right">Orcamento</TableCell>
+                <TableCell align="right">Orçamento</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>

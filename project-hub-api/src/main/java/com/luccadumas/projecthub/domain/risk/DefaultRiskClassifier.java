@@ -16,7 +16,7 @@ public class DefaultRiskClassifier implements RiskClassificationStrategy {
 
         if (budget.compareTo(RiskThresholds.MEDIUM_BUDGET_MAX) > 0
                 || durationMonths > RiskThresholds.MEDIUM_DURATION_MONTHS) {
-            return RiskLevel.ALTO;
+            return RiskLevel.HIGH;
         }
 
         boolean mediumBudget = budget.compareTo(RiskThresholds.LOW_BUDGET_MAX) > 0
@@ -25,9 +25,9 @@ public class DefaultRiskClassifier implements RiskClassificationStrategy {
                 && durationMonths <= RiskThresholds.MEDIUM_DURATION_MONTHS;
 
         if (mediumBudget || mediumDuration) {
-            return RiskLevel.MEDIO;
+            return RiskLevel.MEDIUM;
         }
 
-        return RiskLevel.BAIXO;
+        return RiskLevel.LOW;
     }
 }

@@ -6,7 +6,7 @@ export function ProtectedRoute() {
   const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
-    return <LoadingState label="Verificando sessao..." />;
+    return <LoadingState label="Verificando sessão..." />;
   }
 
   if (!isAuthenticated) {

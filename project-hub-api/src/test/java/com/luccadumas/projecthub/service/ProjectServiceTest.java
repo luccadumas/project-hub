@@ -70,7 +70,7 @@ class ProjectServiceTest {
     @Test
     @DisplayName("Should find project by id")
     void shouldFindProjectById() {
-        Project project = sampleProject(1L, ProjectStatus.PLANEJADO);
+        Project project = sampleProject(1L, ProjectStatus.PLANNED);
         ProjectResponse response = ProjectResponse.builder().id(1L).name("Portal").build();
 
         when(projectRepository.findWithMembersById(1L)).thenReturn(Optional.of(project));
@@ -94,7 +94,7 @@ class ProjectServiceTest {
     @Test
     @DisplayName("Should list projects with pagination")
     void shouldListProjectsWithPagination() {
-        Project project = sampleProject(1L, ProjectStatus.EM_ANALISE);
+        Project project = sampleProject(1L, ProjectStatus.UNDER_ANALYSIS);
         PageRequest pageable = PageRequest.of(0, 10);
 
         when(projectRepository.findAll(any(Specification.class), eq(pageable)))
@@ -111,7 +111,7 @@ class ProjectServiceTest {
     }
 
     @ParameterizedTest
-    @EnumSource(value = ProjectStatus.class, names = {"INICIADO", "EM_ANDAMENTO", "ENCERRADO"})
+    @EnumSource(value = ProjectStatus.class, names = {"STARTED", "IN_PROGRESS", "COMPLETED"})
     @DisplayName("Should block project deletion for protected statuses")
     void shouldBlockProjectDeletionForProtectedStatuses(ProjectStatus status) {
         Project project = Project.builder().id(1L).status(status).build();
@@ -125,7 +125,7 @@ class ProjectServiceTest {
     @Test
     @DisplayName("Should delete project when status allows deletion")
     void shouldDeleteProjectWhenAllowed() {
-        Project project = Project.builder().id(1L).status(ProjectStatus.EM_ANALISE).build();
+        Project project = Project.builder().id(1L).status(ProjectStatus.UNDER_ANALYSIS).build();
         when(projectRepository.findWithMembersById(1L)).thenReturn(Optional.of(project));
 
         projectService.delete(1L);
@@ -136,13 +136,13 @@ class ProjectServiceTest {
     @Test
     @DisplayName("Should validate status workflow on update")
     void shouldValidateStatusWorkflowOnUpdate() {
-        Project project = Project.builder().id(1L).status(ProjectStatus.EM_ANALISE).build();
+        Project project = Project.builder().id(1L).status(ProjectStatus.UNDER_ANALYSIS).build();
         ProjectStatusUpdateRequest request = new ProjectStatusUpdateRequest();
-        request.setStatus(ProjectStatus.INICIADO);
+        request.setStatus(ProjectStatus.STARTED);
 
         when(projectRepository.findWithMembersById(1L)).thenReturn(Optional.of(project));
         doThrow(new BusinessException("Invalid status transition"))
-                .when(statusWorkflow).validateTransition(ProjectStatus.EM_ANALISE, ProjectStatus.INICIADO);
+                .when(statusWorkflow).validateTransition(ProjectStatus.UNDER_ANALYSIS, ProjectStatus.STARTED);
 
         assertThatThrownBy(() -> projectService.updateStatus(1L, request))
                 .isInstanceOf(BusinessException.class);
@@ -151,9 +151,9 @@ class ProjectServiceTest {
     @Test
     @DisplayName("Should set actual end date when closing project")
     void shouldSetActualEndDateWhenClosingProject() {
-        Project project = sampleProject(1L, ProjectStatus.EM_ANDAMENTO);
+        Project project = sampleProject(1L, ProjectStatus.IN_PROGRESS);
         ProjectStatusUpdateRequest request = new ProjectStatusUpdateRequest();
-        request.setStatus(ProjectStatus.ENCERRADO);
+        request.setStatus(ProjectStatus.COMPLETED);
 
         when(projectRepository.findWithMembersById(1L)).thenReturn(Optional.of(project));
         when(projectRepository.save(any(Project.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -164,7 +164,7 @@ class ProjectServiceTest {
         projectService.updateStatus(1L, request);
 
         verify(projectRepository).save(argThat(saved ->
-                saved.getStatus() == ProjectStatus.ENCERRADO && saved.getActualEndDate() != null));
+                saved.getStatus() == ProjectStatus.COMPLETED && saved.getActualEndDate() != null));
     }
 
     @Test
@@ -186,7 +186,7 @@ class ProjectServiceTest {
 
         when(memberDirectory.getRequired(1L)).thenReturn(managerResponse());
         when(memberAllocationService.resolveMembers(Set.of(2L), null)).thenReturn(Set.of(employee()));
-        when(riskClassifier.classify(any(), any(), any())).thenReturn(RiskLevel.BAIXO);
+        when(riskClassifier.classify(any(), any(), any())).thenReturn(RiskLevel.LOW);
         when(projectRepository.save(any(Project.class))).thenAnswer(invocation -> {
             Project saved = invocation.getArgument(0);
             saved.setId(99L);
@@ -198,15 +198,15 @@ class ProjectServiceTest {
         projectService.create(request);
 
         verify(projectRepository).save(argThat(project ->
-                project.getStatus() == ProjectStatus.EM_ANALISE
+                project.getStatus() == ProjectStatus.UNDER_ANALYSIS
                         && project.getName().equals("New Project")
-                        && project.getRiskLevel() == RiskLevel.BAIXO));
+                        && project.getRiskLevel() == RiskLevel.LOW));
     }
 
     @Test
     @DisplayName("Should refresh persisted risk level when project data changes")
     void shouldRefreshPersistedRiskLevelOnUpdate() {
-        Project project = sampleProject(1L, ProjectStatus.PLANEJADO);
+        Project project = sampleProject(1L, ProjectStatus.PLANNED);
         ProjectUpdateRequest request = new ProjectUpdateRequest();
         request.setName("Updated");
         request.setStartDate(LocalDate.of(2025, 1, 1));
@@ -218,7 +218,7 @@ class ProjectServiceTest {
         when(projectRepository.findWithMembersById(1L)).thenReturn(Optional.of(project));
         when(memberDirectory.getRequired(1L)).thenReturn(managerResponse());
         when(memberAllocationService.resolveMembers(Set.of(2L), 1L)).thenReturn(Set.of(employee()));
-        when(riskClassifier.classify(any(), any(), any())).thenReturn(RiskLevel.ALTO);
+        when(riskClassifier.classify(any(), any(), any())).thenReturn(RiskLevel.HIGH);
         when(projectRepository.save(any(Project.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(projectMapper.toResponse(any(Project.class), eq("Ana Silva")))
                 .thenReturn(ProjectResponse.builder().id(1L).build());
@@ -229,13 +229,13 @@ class ProjectServiceTest {
                 new BigDecimal("600000"),
                 LocalDate.of(2025, 1, 1),
                 LocalDate.of(2025, 12, 1));
-        verify(projectRepository).save(argThat(saved -> saved.getRiskLevel() == RiskLevel.ALTO));
+        verify(projectRepository).save(argThat(saved -> saved.getRiskLevel() == RiskLevel.HIGH));
     }
 
     @Test
     @DisplayName("Should update project and reallocate members")
     void shouldUpdateProjectAndReallocateMembers() {
-        Project project = sampleProject(1L, ProjectStatus.PLANEJADO);
+        Project project = sampleProject(1L, ProjectStatus.PLANNED);
         project.getMembers().add(employee());
 
         ProjectUpdateRequest request = new ProjectUpdateRequest();
@@ -262,7 +262,7 @@ class ProjectServiceTest {
     @Test
     @DisplayName("Should allocate members to existing project")
     void shouldAllocateMembersToExistingProject() {
-        Project project = sampleProject(1L, ProjectStatus.PLANEJADO);
+        Project project = sampleProject(1L, ProjectStatus.PLANNED);
         ProjectMemberAllocationRequest request = new ProjectMemberAllocationRequest();
         request.setMemberIds(Set.of(2L));
 
@@ -280,25 +280,25 @@ class ProjectServiceTest {
     }
 
     @Test
-    @DisplayName("Should reject manager that is not a gerente")
+    @DisplayName("Should reject manager that is not a manager")
     void shouldRejectNonManagerRole() {
         ProjectCreateRequest request = buildCreateRequest();
         request.setManagerId(2L);
 
         when(memberDirectory.getRequired(2L)).thenReturn(
-                MemberResponse.builder().id(2L).name("Bruno").role("funcionario").build());
-        doThrow(new BusinessException("Only members with role 'gerente' can be assigned as project manager. Member id: 2"))
+                MemberResponse.builder().id(2L).name("Bruno").role("employee").build());
+        doThrow(new BusinessException("Only members with role 'manager' can be assigned as project manager. Member id: 2"))
                 .when(lifecycleValidator).validateManager(any(MemberRole.class), eq(2L));
 
         assertThatThrownBy(() -> projectService.create(request))
                 .isInstanceOf(BusinessException.class)
-                .hasMessageContaining("gerente");
+                .hasMessageContaining("manager");
     }
 
     @Test
     @DisplayName("Should block update for terminal project status")
     void shouldBlockUpdateForTerminalStatus() {
-        Project project = sampleProject(1L, ProjectStatus.ENCERRADO);
+        Project project = sampleProject(1L, ProjectStatus.COMPLETED);
         ProjectUpdateRequest request = new ProjectUpdateRequest();
         request.setName("Updated");
         request.setStartDate(LocalDate.of(2025, 1, 1));
@@ -308,8 +308,8 @@ class ProjectServiceTest {
         request.setMemberIds(Set.of(2L));
 
         when(projectRepository.findWithMembersById(1L)).thenReturn(Optional.of(project));
-        doThrow(new BusinessException("Project cannot be modified while status is ENCERRADO"))
-                .when(lifecycleValidator).ensureModifiable(ProjectStatus.ENCERRADO);
+        doThrow(new BusinessException("Project cannot be modified while status is COMPLETED"))
+                .when(lifecycleValidator).ensureModifiable(ProjectStatus.COMPLETED);
 
         assertThatThrownBy(() -> projectService.update(1L, request))
                 .isInstanceOf(BusinessException.class)
@@ -319,13 +319,13 @@ class ProjectServiceTest {
     @Test
     @DisplayName("Should block member allocation for terminal project status")
     void shouldBlockAllocationForTerminalStatus() {
-        Project project = sampleProject(1L, ProjectStatus.CANCELADO);
+        Project project = sampleProject(1L, ProjectStatus.CANCELED);
         ProjectMemberAllocationRequest request = new ProjectMemberAllocationRequest();
         request.setMemberIds(Set.of(2L));
 
         when(projectRepository.findWithMembersById(1L)).thenReturn(Optional.of(project));
-        doThrow(new BusinessException("Project cannot be modified while status is CANCELADO"))
-                .when(lifecycleValidator).ensureModifiable(ProjectStatus.CANCELADO);
+        doThrow(new BusinessException("Project cannot be modified while status is CANCELED"))
+                .when(lifecycleValidator).ensureModifiable(ProjectStatus.CANCELED);
 
         assertThatThrownBy(() -> projectService.allocateMembers(1L, request))
                 .isInstanceOf(BusinessException.class)
@@ -352,15 +352,15 @@ class ProjectServiceTest {
                 .totalBudget(new BigDecimal("50000"))
                 .managerId(1L)
                 .status(status)
-                .riskLevel(RiskLevel.BAIXO)
+                .riskLevel(RiskLevel.LOW)
                 .build();
     }
 
     private Member employee() {
-        return Member.builder().id(2L).name("Bruno").role(MemberRole.FUNCIONARIO).build();
+        return Member.builder().id(2L).name("Bruno").role(MemberRole.EMPLOYEE).build();
     }
 
     private MemberResponse managerResponse() {
-        return MemberResponse.builder().id(1L).name("Ana Silva").role("gerente").build();
+        return MemberResponse.builder().id(1L).name("Ana Silva").role("manager").build();
     }
 }

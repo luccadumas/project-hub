@@ -51,11 +51,11 @@ class ProjectSpecificationsIntegrationTest {
     @Test
     @DisplayName("Should filter projects by persisted risk level")
     void shouldFilterProjectsByPersistedRiskLevel() {
-        projectRepository.save(buildProject("Alto Risco", RiskLevel.ALTO));
-        projectRepository.save(buildProject("Baixo Risco", RiskLevel.BAIXO));
+        projectRepository.save(buildProject("Alto Risco", RiskLevel.HIGH));
+        projectRepository.save(buildProject("Baixo Risco", RiskLevel.LOW));
 
         Specification<Project> specification = ProjectSpecifications.withFilters(
-                null, null, RiskLevel.ALTO, null, null, null, null, null);
+                null, null, RiskLevel.HIGH, null, null, null, null, null);
 
         List<Project> results = projectRepository.findAll(specification);
 
@@ -66,8 +66,8 @@ class ProjectSpecificationsIntegrationTest {
     @Test
     @DisplayName("Should filter projects by partial name")
     void shouldFilterProjectsByPartialName() {
-        projectRepository.save(buildProject("Portal Corporativo", RiskLevel.MEDIO));
-        projectRepository.save(buildProject("App Mobile", RiskLevel.BAIXO));
+        projectRepository.save(buildProject("Portal Corporativo", RiskLevel.MEDIUM));
+        projectRepository.save(buildProject("App Mobile", RiskLevel.LOW));
 
         Specification<Project> specification = ProjectSpecifications.withFilters(
                 "portal", null, null, null, null, null, null, null);
@@ -85,7 +85,7 @@ class ProjectSpecificationsIntegrationTest {
                 .expectedEndDate(LocalDate.of(2025, 6, 1))
                 .totalBudget(new BigDecimal("120000"))
                 .managerId(1L)
-                .status(ProjectStatus.PLANEJADO)
+                .status(ProjectStatus.PLANNED)
                 .riskLevel(riskLevel)
                 .build();
     }

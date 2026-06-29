@@ -1,16 +1,16 @@
-export type MemberRole = 'gerente' | 'funcionario' | 'estagiario' | 'consultor';
+export type MemberRole = 'manager' | 'employee' | 'intern' | 'consultant';
 
 export type ProjectStatus =
-  | 'EM_ANALISE'
-  | 'ANALISE_REALIZADA'
-  | 'ANALISE_APROVADA'
-  | 'INICIADO'
-  | 'PLANEJADO'
-  | 'EM_ANDAMENTO'
-  | 'ENCERRADO'
-  | 'CANCELADO';
+  | 'UNDER_ANALYSIS'
+  | 'ANALYSIS_COMPLETED'
+  | 'ANALYSIS_APPROVED'
+  | 'STARTED'
+  | 'PLANNED'
+  | 'IN_PROGRESS'
+  | 'COMPLETED'
+  | 'CANCELED';
 
-export type RiskLevel = 'BAIXO' | 'MEDIO' | 'ALTO';
+export type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH';
 
 export interface MemberSummary {
   id: number;

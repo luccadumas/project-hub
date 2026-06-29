@@ -30,8 +30,8 @@ class MemberDirectoryTest {
     @DisplayName("Should resolve manager names in a single external lookup")
     void shouldResolveManagerNamesInSingleLookup() {
         when(memberExternalClient.findAll()).thenReturn(List.of(
-                MemberResponse.builder().id(1L).name("Ana Silva").role("gerente").build(),
-                MemberResponse.builder().id(2L).name("Bruno Costa").role("funcionario").build()
+                MemberResponse.builder().id(1L).name("Ana Silva").role("manager").build(),
+                MemberResponse.builder().id(2L).name("Bruno Costa").role("employee").build()
         ));
 
         Map<Long, String> names = memberDirectory.resolveManagerNames(Set.of(1L, 2L));
@@ -45,5 +45,18 @@ class MemberDirectoryTest {
     @DisplayName("Should return empty map when no manager ids are requested")
     void shouldReturnEmptyMapWhenNoManagerIds() {
         assertThat(memberDirectory.resolveManagerNames(Set.of())).isEmpty();
+    }
+
+    @Test
+    @DisplayName("Should fetch required member by id")
+    void shouldFetchRequiredMemberById() {
+        when(memberExternalClient.findById(1L)).thenReturn(
+                MemberResponse.builder().id(1L).name("Ana Silva").role("manager").build()
+        );
+
+        MemberResponse member = memberDirectory.getRequired(1L);
+
+        assertThat(member.getName()).isEqualTo("Ana Silva");
+        verify(memberExternalClient).findById(1L);
     }
 }

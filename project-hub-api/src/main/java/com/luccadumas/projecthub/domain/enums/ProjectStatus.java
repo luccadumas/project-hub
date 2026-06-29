@@ -1,24 +1,24 @@
 package com.luccadumas.projecthub.domain.enums;
 
 public enum ProjectStatus {
-    EM_ANALISE,
-    ANALISE_REALIZADA,
-    ANALISE_APROVADA,
-    INICIADO,
-    PLANEJADO,
-    EM_ANDAMENTO,
-    ENCERRADO,
-    CANCELADO;
+    UNDER_ANALYSIS,
+    ANALYSIS_COMPLETED,
+    ANALYSIS_APPROVED,
+    STARTED,
+    PLANNED,
+    IN_PROGRESS,
+    COMPLETED,
+    CANCELED;
 
     public boolean isTerminal() {
-        return this == ENCERRADO || this == CANCELADO;
+        return this == COMPLETED || this == CANCELED;
     }
 
     public boolean blocksDeletion() {
-        return this == INICIADO || this == EM_ANDAMENTO || this == ENCERRADO;
+        return this == STARTED || this == IN_PROGRESS || this == COMPLETED;
     }
 
     public boolean isActiveForMemberAllocation() {
-        return this != ENCERRADO && this != CANCELADO;
+        return this != COMPLETED && this != CANCELED;
     }
 }

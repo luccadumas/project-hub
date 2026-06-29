@@ -29,7 +29,7 @@ export function ReportPage() {
   if (reportQuery.isError || !reportQuery.data) {
     return (
       <AppLayout>
-        <Alert severity="error">Erro ao carregar relatorio</Alert>
+        <Alert severity="error">Erro ao carregar relatório</Alert>
       </AppLayout>
     );
   }
@@ -41,19 +41,19 @@ export function ReportPage() {
   return (
     <AppLayout>
       <PageHeader
-        title="Relatorio do Portfolio"
-        subtitle="Indicadores consolidados por status e orcamento"
+        title="Relatório do Portfólio"
+        subtitle="Indicadores consolidados por status e orçamento"
       />
 
       <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mb: 3 }}>
         <StatCard
-          title="Membros unicos alocados"
+          title="Membros únicos alocados"
           value={report.uniqueAllocatedMembers}
           icon={<GroupsOutlinedIcon />}
           accent="#0f766e"
         />
         <StatCard
-          title="Duracao media (dias)"
+          title="Duração média (dias)"
           value={Math.round(report.averageClosedProjectDurationDays)}
           icon={<ScheduleOutlinedIcon />}
           accent="#7c3aed"
@@ -78,7 +78,7 @@ export function ReportPage() {
                 {count}
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                {formatCurrency(budget)} orcados
+                {formatCurrency(budget)} orçados
               </Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <LinearProgress
@@ -107,7 +107,7 @@ export function ReportPage() {
             {formatCurrency(totalBudget)}
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Valor total orcado em todos os status
+            Valor total orçado em todos os status
           </Typography>
         </ContentCard>
       </Box>

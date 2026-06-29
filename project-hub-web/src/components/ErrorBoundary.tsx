@@ -26,10 +26,10 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
         <Box sx={{ minHeight: '100vh', display: 'grid', placeItems: 'center', p: 3 }}>
           <Box sx={{ maxWidth: 480, textAlign: 'center' }}>
             <Alert severity="error" sx={{ mb: 2 }}>
-              Ocorreu um erro inesperado na aplicacao.
+              Ocorreu um erro inesperado na aplicação.
             </Alert>
             <Typography color="text.secondary" sx={{ mb: 2 }}>
-              Recarregue a pagina para tentar novamente.
+              Recarregue a página para tentar novamente.
             </Typography>
             <Button variant="contained" onClick={() => window.location.reload()}>
               Recarregar

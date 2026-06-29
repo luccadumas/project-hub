@@ -70,6 +70,6 @@ describe('ProtectedRoute', () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByText('Verificando sessao...')).toBeInTheDocument();
+    expect(screen.getByText('Verificando sessão...')).toBeInTheDocument();
   });
 });

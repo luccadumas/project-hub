@@ -30,7 +30,7 @@ class DefaultRiskClassifierTest {
                 LocalDate.of(2025, 3, 1)
         );
 
-        assertThat(risk).isEqualTo(RiskLevel.BAIXO);
+        assertThat(risk).isEqualTo(RiskLevel.LOW);
     }
 
     @Test
@@ -42,7 +42,7 @@ class DefaultRiskClassifierTest {
                 LocalDate.of(2025, 2, 1)
         );
 
-        assertThat(risk).isEqualTo(RiskLevel.MEDIO);
+        assertThat(risk).isEqualTo(RiskLevel.MEDIUM);
     }
 
     @Test
@@ -54,7 +54,7 @@ class DefaultRiskClassifierTest {
                 LocalDate.of(2025, 6, 1)
         );
 
-        assertThat(risk).isEqualTo(RiskLevel.MEDIO);
+        assertThat(risk).isEqualTo(RiskLevel.MEDIUM);
     }
 
     @ParameterizedTest
@@ -70,6 +70,6 @@ class DefaultRiskClassifierTest {
                 LocalDate.parse(end)
         );
 
-        assertThat(risk).isEqualTo(RiskLevel.ALTO);
+        assertThat(risk).isEqualTo(RiskLevel.HIGH);
     }
 }

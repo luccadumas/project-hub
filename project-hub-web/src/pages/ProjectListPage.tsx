@@ -81,7 +81,7 @@ export function ProjectListPage() {
     <AppLayout>
       <PageHeader
         title="Projetos"
-        subtitle="Gerencie o ciclo de vida e a alocacao de equipes"
+        subtitle="Gerencie o ciclo de vida e a alocação de equipes"
         action={
           isAdmin ? (
             <Button
@@ -141,7 +141,7 @@ export function ProjectListPage() {
 
         {deleteMutation.isError && (
           <Alert severity="error" sx={{ m: 2 }}>
-            Nao foi possivel excluir o projeto. Verifique o status atual.
+            Não foi possível excluir o projeto. Verifique o status atual.
           </Alert>
         )}
 
@@ -158,8 +158,8 @@ export function ProjectListPage() {
                   <TableCell>Status</TableCell>
                   <TableCell>Risco</TableCell>
                   <TableCell>Gerente</TableCell>
-                  <TableCell align="right">Orcamento</TableCell>
-                  <TableCell align="right">Acoes</TableCell>
+                  <TableCell align="right">Orçamento</TableCell>
+                  <TableCell align="right">Ações</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -230,7 +230,7 @@ export function ProjectListPage() {
                 setSize(Number(event.target.value));
                 setPage(0);
               }}
-              labelRowsPerPage="Linhas por pagina"
+              labelRowsPerPage="Linhas por página"
             />
           </>
         )}

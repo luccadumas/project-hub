@@ -3,21 +3,21 @@ package com.luccadumas.projecthub.domain.enums;
 import com.luccadumas.projecthub.exception.BusinessException;
 
 public enum MemberRole {
-    FUNCIONARIO,
-    GERENTE,
-    ESTAGIARIO,
-    CONSULTOR;
+    EMPLOYEE,
+    MANAGER,
+    INTERN,
+    CONSULTANT;
 
     public static MemberRole fromValue(String value) {
         return MemberRole.valueOf(value.trim().toUpperCase());
     }
 
     public boolean canBeAllocatedToProject() {
-        return this == FUNCIONARIO;
+        return this == EMPLOYEE;
     }
 
     public boolean canBeManager() {
-        return this == GERENTE;
+        return this == MANAGER;
     }
 
     public static MemberRole parseRole(String value) {

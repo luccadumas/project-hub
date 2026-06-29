@@ -57,12 +57,12 @@ class BusinessRulesIntegrationTest {
         com.luccadumas.projecthub.dto.request.MemberCreateRequest request =
                 new com.luccadumas.projecthub.dto.request.MemberCreateRequest();
         request.setName("Integracao Teste");
-        request.setRole("funcionario");
+        request.setRole("employee");
 
         MemberResponse created = externalMemberService.create(request);
 
         assertThat(created.getId()).isNotNull();
-        assertThat(created.getRole()).isEqualTo("funcionario");
+        assertThat(created.getRole()).isEqualTo("employee");
     }
 
     @Test
@@ -78,11 +78,11 @@ class BusinessRulesIntegrationTest {
 
         ProjectResponse created = projectService.create(createRequest);
 
-        assertThat(created.getStatus()).isEqualTo(ProjectStatus.EM_ANALISE);
+        assertThat(created.getStatus()).isEqualTo(ProjectStatus.UNDER_ANALYSIS);
         assertThat(created.getRiskLevel()).isNotNull();
 
         ProjectCreateRequest invalidManagerRequest = new ProjectCreateRequest();
-        invalidManagerRequest.setName("Gerente invalido");
+        invalidManagerRequest.setName("Gerente inválido");
         invalidManagerRequest.setStartDate(LocalDate.of(2025, 1, 1));
         invalidManagerRequest.setExpectedEndDate(LocalDate.of(2025, 4, 1));
         invalidManagerRequest.setTotalBudget(new BigDecimal("75000"));
@@ -91,18 +91,18 @@ class BusinessRulesIntegrationTest {
 
         assertThatThrownBy(() -> projectService.create(invalidManagerRequest))
                 .isInstanceOf(BusinessException.class)
-                .hasMessageContaining("gerente");
+                .hasMessageContaining("manager");
 
-        advanceToStatus(created.getId(), ProjectStatus.EM_ANDAMENTO);
+        advanceToStatus(created.getId(), ProjectStatus.IN_PROGRESS);
 
         assertThatThrownBy(() -> projectService.delete(created.getId()))
                 .isInstanceOf(BusinessException.class)
                 .hasMessageContaining("cannot be deleted");
 
-        advanceToStatus(created.getId(), ProjectStatus.ENCERRADO);
+        advanceToStatus(created.getId(), ProjectStatus.COMPLETED);
 
         ProjectUpdateRequest updateRequest = new ProjectUpdateRequest();
-        updateRequest.setName("Nao deve atualizar");
+        updateRequest.setName("Não deve atualizar");
         updateRequest.setStartDate(LocalDate.of(2025, 1, 1));
         updateRequest.setExpectedEndDate(LocalDate.of(2025, 4, 1));
         updateRequest.setTotalBudget(new BigDecimal("75000"));
@@ -114,11 +114,11 @@ class BusinessRulesIntegrationTest {
                 .hasMessageContaining("cannot be modified");
 
         ProjectStatusUpdateRequest cancelRequest = new ProjectStatusUpdateRequest();
-        cancelRequest.setStatus(ProjectStatus.CANCELADO);
+        cancelRequest.setStatus(ProjectStatus.CANCELED);
 
         assertThatThrownBy(() -> projectService.updateStatus(created.getId(), cancelRequest))
                 .isInstanceOf(BusinessException.class)
-                .hasMessageContaining("Cannot cancel");
+                .hasMessageContaining("Não é possível cancelar");
 
         var filtered = projectService.findAll(
                 "Integracao E2E",
@@ -136,13 +136,13 @@ class BusinessRulesIntegrationTest {
 
     private void advanceToStatus(Long projectId, ProjectStatus targetStatus) {
         ProjectStatus[] path = {
-                ProjectStatus.EM_ANALISE,
-                ProjectStatus.ANALISE_REALIZADA,
-                ProjectStatus.ANALISE_APROVADA,
-                ProjectStatus.INICIADO,
-                ProjectStatus.PLANEJADO,
-                ProjectStatus.EM_ANDAMENTO,
-                ProjectStatus.ENCERRADO
+                ProjectStatus.UNDER_ANALYSIS,
+                ProjectStatus.ANALYSIS_COMPLETED,
+                ProjectStatus.ANALYSIS_APPROVED,
+                ProjectStatus.STARTED,
+                ProjectStatus.PLANNED,
+                ProjectStatus.IN_PROGRESS,
+                ProjectStatus.COMPLETED
         };
 
         ProjectResponse current = projectService.findById(projectId);

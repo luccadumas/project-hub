@@ -71,9 +71,9 @@ public interface ProjectRepository extends JpaRepository<Project, Long>, JpaSpec
     List<Object[]> aggregateProjectsByStatus();
 
     @Query(value = """
-            SELECT AVG(EXTRACT(EPOCH FROM (actual_end_date - start_date)) / 86400.0)
+            SELECT AVG((actual_end_date - start_date)::double precision)
             FROM projects
-            WHERE status = 'ENCERRADO' AND actual_end_date IS NOT NULL
+            WHERE status = 'COMPLETED' AND actual_end_date IS NOT NULL
             """, nativeQuery = true)
     Double averageClosedProjectDurationDays();
 }

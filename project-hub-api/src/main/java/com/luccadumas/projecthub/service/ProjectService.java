@@ -87,7 +87,7 @@ public class ProjectService {
                 .totalBudget(request.getTotalBudget())
                 .description(request.getDescription())
                 .managerId(request.getManagerId())
-                .status(ProjectStatus.EM_ANALISE)
+                .status(ProjectStatus.UNDER_ANALYSIS)
                 .members(members)
                 .build();
         refreshRiskLevel(project);
@@ -136,7 +136,7 @@ public class ProjectService {
         Project project = getProject(id);
         statusWorkflow.validateTransition(project.getStatus(), request.getStatus());
 
-        if (request.getStatus() == ProjectStatus.ENCERRADO && project.getActualEndDate() == null) {
+        if (request.getStatus() == ProjectStatus.COMPLETED && project.getActualEndDate() == null) {
             project.setActualEndDate(LocalDate.now());
         }
 

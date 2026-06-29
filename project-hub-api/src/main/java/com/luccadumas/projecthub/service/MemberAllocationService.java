@@ -28,7 +28,7 @@ public class MemberAllocationService {
     private static final int MAX_MEMBERS = 10;
     private static final int MAX_ACTIVE_PROJECTS_PER_MEMBER = 3;
     private static final List<ProjectStatus> INACTIVE_STATUSES =
-            List.of(ProjectStatus.ENCERRADO, ProjectStatus.CANCELADO);
+            List.of(ProjectStatus.COMPLETED, ProjectStatus.CANCELED);
 
     private final MemberExternalClient memberExternalClient;
     private final MemberRepository memberRepository;
@@ -54,7 +54,7 @@ public class MemberAllocationService {
 
             if (!role.canBeAllocatedToProject()) {
                 throw new BusinessException(
-                        "Only members with role 'funcionario' can be allocated to projects. Member id: " + memberId);
+                        "Only members with role 'employee' can be allocated to projects. Member id: " + memberId);
             }
 
             validateActiveProjectLimit(memberId, activeProjectCounts, memberIdsInCurrentProject);

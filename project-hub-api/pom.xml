@@ -179,6 +179,7 @@
                                     <includes>
                                         <include>com.luccadumas.projecthub.domain.risk.*</include>
                                         <include>com.luccadumas.projecthub.domain.status.*</include>
+                                        <include>com.luccadumas.projecthub.domain.project.*</include>
                                         <include>com.luccadumas.projecthub.service.ProjectService</include>
                                         <include>com.luccadumas.projecthub.service.MemberAllocationService</include>
                                         <include>com.luccadumas.projecthub.service.PortfolioReportService</include>

@@ -23,52 +23,52 @@ class ProjectStatusWorkflowTest {
     @Test
     @DisplayName("Should allow sequential status transitions")
     void shouldAllowSequentialTransitions() {
-        assertThatCode(() -> workflow.validateTransition(ProjectStatus.EM_ANALISE, ProjectStatus.ANALISE_REALIZADA))
+        assertThatCode(() -> workflow.validateTransition(ProjectStatus.UNDER_ANALYSIS, ProjectStatus.ANALYSIS_COMPLETED))
                 .doesNotThrowAnyException();
-        assertThatCode(() -> workflow.validateTransition(ProjectStatus.ANALISE_REALIZADA, ProjectStatus.ANALISE_APROVADA))
+        assertThatCode(() -> workflow.validateTransition(ProjectStatus.ANALYSIS_COMPLETED, ProjectStatus.ANALYSIS_APPROVED))
                 .doesNotThrowAnyException();
-        assertThatCode(() -> workflow.validateTransition(ProjectStatus.ANALISE_APROVADA, ProjectStatus.INICIADO))
+        assertThatCode(() -> workflow.validateTransition(ProjectStatus.ANALYSIS_APPROVED, ProjectStatus.STARTED))
                 .doesNotThrowAnyException();
-        assertThatCode(() -> workflow.validateTransition(ProjectStatus.INICIADO, ProjectStatus.PLANEJADO))
+        assertThatCode(() -> workflow.validateTransition(ProjectStatus.STARTED, ProjectStatus.PLANNED))
                 .doesNotThrowAnyException();
-        assertThatCode(() -> workflow.validateTransition(ProjectStatus.PLANEJADO, ProjectStatus.EM_ANDAMENTO))
+        assertThatCode(() -> workflow.validateTransition(ProjectStatus.PLANNED, ProjectStatus.IN_PROGRESS))
                 .doesNotThrowAnyException();
-        assertThatCode(() -> workflow.validateTransition(ProjectStatus.EM_ANDAMENTO, ProjectStatus.ENCERRADO))
+        assertThatCode(() -> workflow.validateTransition(ProjectStatus.IN_PROGRESS, ProjectStatus.COMPLETED))
                 .doesNotThrowAnyException();
     }
 
     @Test
     @DisplayName("Should block skipping workflow steps")
     void shouldBlockSkippingSteps() {
-        assertThatThrownBy(() -> workflow.validateTransition(ProjectStatus.EM_ANALISE, ProjectStatus.INICIADO))
+        assertThatThrownBy(() -> workflow.validateTransition(ProjectStatus.UNDER_ANALYSIS, ProjectStatus.STARTED))
                 .isInstanceOf(BusinessException.class)
                 .hasMessageContaining("Invalid status transition");
     }
 
     @ParameterizedTest
-    @EnumSource(value = ProjectStatus.class, names = {"EM_ANALISE", "ANALISE_REALIZADA", "ANALISE_APROVADA", "INICIADO", "PLANEJADO", "EM_ANDAMENTO"})
+    @EnumSource(value = ProjectStatus.class, names = {"UNDER_ANALYSIS", "ANALYSIS_COMPLETED", "ANALYSIS_APPROVED", "STARTED", "PLANNED", "IN_PROGRESS"})
     @DisplayName("Should allow cancellation from active statuses")
     void shouldAllowCancellationFromActiveStatuses(ProjectStatus currentStatus) {
-        assertThatCode(() -> workflow.validateTransition(currentStatus, ProjectStatus.CANCELADO))
+        assertThatCode(() -> workflow.validateTransition(currentStatus, ProjectStatus.CANCELED))
                 .doesNotThrowAnyException();
     }
 
     @Test
     @DisplayName("Should block cancellation from terminal statuses")
     void shouldBlockCancellationFromTerminalStatuses() {
-        assertThatThrownBy(() -> workflow.validateTransition(ProjectStatus.ENCERRADO, ProjectStatus.CANCELADO))
+        assertThatThrownBy(() -> workflow.validateTransition(ProjectStatus.COMPLETED, ProjectStatus.CANCELED))
                 .isInstanceOf(BusinessException.class)
                 .hasMessageContaining("Cannot cancel");
-        assertThatThrownBy(() -> workflow.validateTransition(ProjectStatus.CANCELADO, ProjectStatus.CANCELADO))
+        assertThatThrownBy(() -> workflow.validateTransition(ProjectStatus.CANCELED, ProjectStatus.CANCELED))
                 .isInstanceOf(BusinessException.class);
     }
 
     @Test
     @DisplayName("Should block transition from terminal statuses")
     void shouldBlockTransitionFromTerminalStatuses() {
-        assertThatThrownBy(() -> workflow.validateTransition(ProjectStatus.ENCERRADO, ProjectStatus.EM_ANDAMENTO))
+        assertThatThrownBy(() -> workflow.validateTransition(ProjectStatus.COMPLETED, ProjectStatus.IN_PROGRESS))
                 .isInstanceOf(BusinessException.class);
-        assertThatThrownBy(() -> workflow.validateTransition(ProjectStatus.CANCELADO, ProjectStatus.EM_ANALISE))
+        assertThatThrownBy(() -> workflow.validateTransition(ProjectStatus.CANCELED, ProjectStatus.UNDER_ANALYSIS))
                 .isInstanceOf(BusinessException.class);
     }
 }

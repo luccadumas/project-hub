@@ -14,14 +14,14 @@ public class ProjectStatusWorkflow {
     private static final Map<ProjectStatus, Set<ProjectStatus>> ALLOWED_TRANSITIONS = new EnumMap<>(ProjectStatus.class);
 
     static {
-        ALLOWED_TRANSITIONS.put(ProjectStatus.EM_ANALISE, Set.of(ProjectStatus.ANALISE_REALIZADA, ProjectStatus.CANCELADO));
-        ALLOWED_TRANSITIONS.put(ProjectStatus.ANALISE_REALIZADA, Set.of(ProjectStatus.ANALISE_APROVADA, ProjectStatus.CANCELADO));
-        ALLOWED_TRANSITIONS.put(ProjectStatus.ANALISE_APROVADA, Set.of(ProjectStatus.INICIADO, ProjectStatus.CANCELADO));
-        ALLOWED_TRANSITIONS.put(ProjectStatus.INICIADO, Set.of(ProjectStatus.PLANEJADO, ProjectStatus.CANCELADO));
-        ALLOWED_TRANSITIONS.put(ProjectStatus.PLANEJADO, Set.of(ProjectStatus.EM_ANDAMENTO, ProjectStatus.CANCELADO));
-        ALLOWED_TRANSITIONS.put(ProjectStatus.EM_ANDAMENTO, Set.of(ProjectStatus.ENCERRADO, ProjectStatus.CANCELADO));
-        ALLOWED_TRANSITIONS.put(ProjectStatus.ENCERRADO, Set.of());
-        ALLOWED_TRANSITIONS.put(ProjectStatus.CANCELADO, Set.of());
+        ALLOWED_TRANSITIONS.put(ProjectStatus.UNDER_ANALYSIS, Set.of(ProjectStatus.ANALYSIS_COMPLETED, ProjectStatus.CANCELED));
+        ALLOWED_TRANSITIONS.put(ProjectStatus.ANALYSIS_COMPLETED, Set.of(ProjectStatus.ANALYSIS_APPROVED, ProjectStatus.CANCELED));
+        ALLOWED_TRANSITIONS.put(ProjectStatus.ANALYSIS_APPROVED, Set.of(ProjectStatus.STARTED, ProjectStatus.CANCELED));
+        ALLOWED_TRANSITIONS.put(ProjectStatus.STARTED, Set.of(ProjectStatus.PLANNED, ProjectStatus.CANCELED));
+        ALLOWED_TRANSITIONS.put(ProjectStatus.PLANNED, Set.of(ProjectStatus.IN_PROGRESS, ProjectStatus.CANCELED));
+        ALLOWED_TRANSITIONS.put(ProjectStatus.IN_PROGRESS, Set.of(ProjectStatus.COMPLETED, ProjectStatus.CANCELED));
+        ALLOWED_TRANSITIONS.put(ProjectStatus.COMPLETED, Set.of());
+        ALLOWED_TRANSITIONS.put(ProjectStatus.CANCELED, Set.of());
     }
 
     public void validateTransition(ProjectStatus current, ProjectStatus target) {
@@ -29,7 +29,7 @@ public class ProjectStatusWorkflow {
             throw new BusinessException("Project is already in status: " + current);
         }
 
-        if (target == ProjectStatus.CANCELADO) {
+        if (target == ProjectStatus.CANCELED) {
             if (current.isTerminal()) {
                 throw new BusinessException("Cannot cancel a project that is already " + current);
             }

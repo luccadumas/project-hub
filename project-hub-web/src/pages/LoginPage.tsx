@@ -21,7 +21,7 @@ export function LoginPage() {
   const [submitting, setSubmitting] = useState(false);
 
   if (isLoading) {
-    return <LoadingState label="Verificando sessao..." />;
+    return <LoadingState label="Verificando sessão..." />;
   }
 
   if (isAuthenticated) {
@@ -37,7 +37,7 @@ export function LoginPage() {
       await login(username, password);
       navigate('/');
     } catch {
-      setError('Usuario ou senha invalidos');
+      setError('Usuário ou senha inválidos');
     } finally {
       setSubmitting(false);
     }
@@ -71,11 +71,11 @@ export function LoginPage() {
           PH
         </Box>
         <Typography variant="h3" sx={{ fontWeight: 800, mb: 2, maxWidth: 480, lineHeight: 1.15 }}>
-          Gestao de portfolio com visibilidade executiva
+          Gestão de portfólio com visibilidade executiva
         </Typography>
         <Typography sx={{ color: 'rgba(255,255,255,0.78)', maxWidth: 460, lineHeight: 1.7 }}>
-          Acompanhe projetos, riscos, equipes e orcamento em uma plataforma unificada
-          para tomada de decisao corporativa.
+          Acompanhe projetos, riscos, equipes e orçamento em uma plataforma unificada
+          para tomada de decisão corporativa.
         </Typography>
       </Box>
 
@@ -116,7 +116,7 @@ export function LoginPage() {
           <Box component="form" onSubmit={handleSubmit}>
             <TextField
               fullWidth
-              label="Usuario"
+              label="Usuário"
               margin="normal"
               autoComplete="username"
               value={username}

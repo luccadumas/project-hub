@@ -7,7 +7,7 @@ SET risk_level = CASE
         OR (
             EXTRACT(YEAR FROM age(expected_end_date, start_date)) * 12
             + EXTRACT(MONTH FROM age(expected_end_date, start_date))
-        ) > 6 THEN 'ALTO'
+        ) > 6 THEN 'HIGH'
     WHEN (
             total_budget > 100000
             AND total_budget <= 500000
@@ -21,8 +21,8 @@ SET risk_level = CASE
                 EXTRACT(YEAR FROM age(expected_end_date, start_date)) * 12
                 + EXTRACT(MONTH FROM age(expected_end_date, start_date))
             ) <= 6
-        ) THEN 'MEDIO'
-    ELSE 'BAIXO'
+        ) THEN 'MEDIUM'
+    ELSE 'LOW'
 END;
 
 ALTER TABLE projects

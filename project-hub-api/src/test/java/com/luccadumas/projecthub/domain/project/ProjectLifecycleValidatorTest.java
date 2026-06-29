@@ -22,30 +22,30 @@ class ProjectLifecycleValidatorTest {
     @Test
     @DisplayName("Should allow modification for active statuses")
     void shouldAllowModificationForActiveStatuses() {
-        assertThatCode(() -> validator.ensureModifiable(ProjectStatus.EM_ANDAMENTO))
+        assertThatCode(() -> validator.ensureModifiable(ProjectStatus.IN_PROGRESS))
                 .doesNotThrowAnyException();
     }
 
     @Test
     @DisplayName("Should block modification for terminal statuses")
     void shouldBlockModificationForTerminalStatuses() {
-        assertThatThrownBy(() -> validator.ensureModifiable(ProjectStatus.ENCERRADO))
+        assertThatThrownBy(() -> validator.ensureModifiable(ProjectStatus.COMPLETED))
                 .isInstanceOf(BusinessException.class)
                 .hasMessageContaining("cannot be modified");
     }
 
     @Test
-    @DisplayName("Should accept gerente as project manager")
+    @DisplayName("Should accept manager as project manager")
     void shouldAcceptGerenteAsManager() {
-        assertThatCode(() -> validator.validateManager(MemberRole.GERENTE, 1L))
+        assertThatCode(() -> validator.validateManager(MemberRole.MANAGER, 1L))
                 .doesNotThrowAnyException();
     }
 
     @Test
-    @DisplayName("Should reject non-gerente as project manager")
+    @DisplayName("Should reject non-manager as project manager")
     void shouldRejectNonGerenteAsManager() {
-        assertThatThrownBy(() -> validator.validateManager(MemberRole.FUNCIONARIO, 2L))
+        assertThatThrownBy(() -> validator.validateManager(MemberRole.EMPLOYEE, 2L))
                 .isInstanceOf(BusinessException.class)
-                .hasMessageContaining("gerente");
+                .hasMessageContaining("manager");
     }
 }

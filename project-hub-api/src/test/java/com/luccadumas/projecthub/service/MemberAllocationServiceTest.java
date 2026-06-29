@@ -46,37 +46,37 @@ class MemberAllocationServiceTest {
     @DisplayName("Should resolve employee members successfully")
     void shouldResolveEmployeeMembersSuccessfully() {
         when(memberExternalClient.findByIds(Set.of(2L))).thenReturn(Map.of(
-                2L, MemberResponse.builder().id(2L).name("Employee").role("funcionario").build()
+                2L, MemberResponse.builder().id(2L).name("Employee").role("employee").build()
         ));
         when(projectRepository.countActiveProjectsByMemberIds(eq(Set.of(2L)), any()))
                 .thenReturn(Map.of(2L, 1L));
         when(memberRepository.findAllById(Set.of(2L))).thenReturn(List.of(
-                Member.builder().id(2L).name("Employee").role(MemberRole.FUNCIONARIO).build()
+                Member.builder().id(2L).name("Employee").role(MemberRole.EMPLOYEE).build()
         ));
 
         var members = memberAllocationService.resolveMembers(Set.of(2L), null);
 
         assertThat(members).hasSize(1);
-        assertThat(members.iterator().next().getRole()).isEqualTo(MemberRole.FUNCIONARIO);
+        assertThat(members.iterator().next().getRole()).isEqualTo(MemberRole.EMPLOYEE);
         verify(memberExternalClient).findByIds(Set.of(2L));
     }
 
     @Test
     void shouldBlockNonEmployeeMembers() {
         when(memberExternalClient.findByIds(Set.of(1L))).thenReturn(Map.of(
-                1L, MemberResponse.builder().id(1L).name("Manager").role("gerente").build()
+                1L, MemberResponse.builder().id(1L).name("Manager").role("manager").build()
         ));
 
         assertThatThrownBy(() -> memberAllocationService.resolveMembers(Set.of(1L), null))
                 .isInstanceOf(BusinessException.class)
-                .hasMessageContaining("funcionario");
+                .hasMessageContaining("employee");
     }
 
     @Test
     @DisplayName("Should block when member exceeds active project limit")
     void shouldBlockWhenMemberExceedsActiveProjectLimit() {
         when(memberExternalClient.findByIds(Set.of(2L))).thenReturn(Map.of(
-                2L, MemberResponse.builder().id(2L).name("Employee").role("funcionario").build()
+                2L, MemberResponse.builder().id(2L).name("Employee").role("employee").build()
         ));
         when(projectRepository.countActiveProjectsByMemberIds(eq(Set.of(2L)), any()))
                 .thenReturn(Map.of(2L, 3L));
@@ -107,12 +107,12 @@ class MemberAllocationServiceTest {
     @Test
     @DisplayName("Should allow reallocation when member is already in current project")
     void shouldAllowReallocationForCurrentProjectMember() {
-        Member member = Member.builder().id(2L).name("Employee").role(MemberRole.FUNCIONARIO).build();
-        Project project = Project.builder().id(10L).status(ProjectStatus.PLANEJADO).build();
+        Member member = Member.builder().id(2L).name("Employee").role(MemberRole.EMPLOYEE).build();
+        Project project = Project.builder().id(10L).status(ProjectStatus.PLANNED).build();
         project.getMembers().add(member);
 
         when(memberExternalClient.findByIds(Set.of(2L))).thenReturn(Map.of(
-                2L, MemberResponse.builder().id(2L).name("Employee").role("funcionario").build()
+                2L, MemberResponse.builder().id(2L).name("Employee").role("employee").build()
         ));
         when(projectRepository.countActiveProjectsByMemberIds(eq(Set.of(2L)), any()))
                 .thenReturn(Map.of(2L, 3L));

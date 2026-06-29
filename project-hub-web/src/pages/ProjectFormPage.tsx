@@ -11,6 +11,7 @@ import {
   Typography,
 } from '@mui/material';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
 import { z } from 'zod';
@@ -27,24 +28,25 @@ import { DateInput } from '../components/DateInput';
 import { LoadingState } from '../components/LoadingState';
 import { PageHeader } from '../components/PageHeader';
 import { parseApiDate } from '../utils/date';
+import { formatMemberLabel } from '../utils/formatters';
 import { queryKeys } from '../api/queryKeys';
 import { filterProjectEmployees, filterProjectManagers } from '../utils/members';
 
 const isoDateField = (message: string) =>
-  z.string().min(1, message).refine((value) => parseApiDate(value) !== null, 'Data invalida');
+  z.string().min(1, message).refine((value) => parseApiDate(value) !== null, 'Data inválida');
 
 const schema = z.object({
-  name: z.string().min(1, 'Nome obrigatorio'),
-  startDate: isoDateField('Data de inicio obrigatoria'),
-  expectedEndDate: isoDateField('Previsao de termino obrigatoria'),
+  name: z.string().min(1, 'Nome obrigatório'),
+  startDate: isoDateField('Data de início obrigatória'),
+  expectedEndDate: isoDateField('Previsão de término obrigatória'),
   actualEndDate: z.string().optional().refine(
     (value) => !value || parseApiDate(value) !== null,
-    'Data invalida',
+    'Data inválida',
   ),
-  totalBudget: z.number().positive('Orcamento deve ser maior que zero'),
+  totalBudget: z.number().positive('Orçamento deve ser maior que zero'),
   description: z.string().optional(),
-  managerId: z.number().positive('Gerente obrigatorio'),
-  memberIds: z.array(z.number()).min(1, 'Selecione ao menos 1 membro').max(10, 'Maximo de 10 membros'),
+  managerId: z.number().positive('Gerente obrigatório'),
+  memberIds: z.array(z.number()).min(1, 'Selecione ao menos 1 membro').max(10, 'Máximo de 10 membros'),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -70,21 +72,10 @@ export function ProjectFormPage() {
     register,
     control,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    values: projectQuery.data
-      ? {
-          name: projectQuery.data.name,
-          startDate: projectQuery.data.startDate,
-          expectedEndDate: projectQuery.data.expectedEndDate,
-          actualEndDate: projectQuery.data.actualEndDate,
-          totalBudget: projectQuery.data.totalBudget,
-          description: projectQuery.data.description,
-          managerId: projectQuery.data.managerId,
-          memberIds: projectQuery.data.members.map((member) => member.id),
-        }
-      : undefined,
     defaultValues: {
       name: '',
       startDate: '',
@@ -95,6 +86,23 @@ export function ProjectFormPage() {
       memberIds: [],
     },
   });
+
+  useEffect(() => {
+    if (!projectQuery.data) {
+      return;
+    }
+
+    reset({
+      name: projectQuery.data.name,
+      startDate: projectQuery.data.startDate,
+      expectedEndDate: projectQuery.data.expectedEndDate,
+      actualEndDate: projectQuery.data.actualEndDate,
+      totalBudget: projectQuery.data.totalBudget,
+      description: projectQuery.data.description ?? '',
+      managerId: projectQuery.data.managerId,
+      memberIds: projectQuery.data.members.map((member) => member.id),
+    });
+  }, [projectQuery.data, reset]);
 
   const mutation = useMutation({
     mutationFn: (values: FormValues) =>
@@ -127,7 +135,7 @@ export function ProjectFormPage() {
 
       {mutation.isError && (
         <Alert severity="error" sx={{ mb: 2 }}>
-          Erro ao salvar projeto. Verifique os dados e regras de negocio.
+          Erro ao salvar projeto. Verifique os dados e regras de negócio.
         </Alert>
       )}
 
@@ -141,7 +149,7 @@ export function ProjectFormPage() {
               control={control}
               render={({ field }) => (
                 <CurrencyInput
-                  label="Orcamento total"
+                  label="Orçamento total"
                   value={field.value}
                   onChange={field.onChange}
                   error={!!errors.totalBudget}
@@ -154,7 +162,7 @@ export function ProjectFormPage() {
               control={control}
               render={({ field }) => (
                 <DateInput
-                  label="Data de inicio"
+                  label="Data de início"
                   value={field.value}
                   onChange={field.onChange}
                   error={!!errors.startDate}
@@ -167,7 +175,7 @@ export function ProjectFormPage() {
               control={control}
               render={({ field }) => (
                 <DateInput
-                  label="Previsao de termino"
+                  label="Previsão de término"
                   value={field.value}
                   onChange={field.onChange}
                   error={!!errors.expectedEndDate}
@@ -181,7 +189,7 @@ export function ProjectFormPage() {
                 control={control}
                 render={({ field }) => (
                   <DateInput
-                    label="Data real de termino"
+                    label="Data real de término"
                     value={field.value ?? ''}
                     onChange={field.onChange}
                     error={!!errors.actualEndDate}
@@ -190,18 +198,35 @@ export function ProjectFormPage() {
                 )}
               />
             )}
-            <TextField select fullWidth label="Gerente responsavel" {...register('managerId', { valueAsNumber: true })} error={!!errors.managerId} helperText={errors.managerId?.message}>
-              {managers.map((member) => (
-                <MenuItem key={member.id} value={member.id}>{member.name} ({member.role})</MenuItem>
-              ))}
-            </TextField>
+            <Controller
+              name="managerId"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  select
+                  fullWidth
+                  label="Gerente responsável"
+                  value={field.value || ''}
+                  onChange={(event) => field.onChange(Number(event.target.value))}
+                  onBlur={field.onBlur}
+                  error={!!errors.managerId}
+                  helperText={errors.managerId?.message}
+                >
+                  {managers.map((member) => (
+                    <MenuItem key={member.id} value={member.id}>
+                      {formatMemberLabel(member.name, member.role)}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              )}
+            />
           </Box>
 
-          <TextField fullWidth multiline rows={3} label="Descricao" sx={{ mt: 2 }} {...register('description')} />
+          <TextField fullWidth multiline rows={3} label="Descrição" sx={{ mt: 2 }} {...register('description')} />
 
           <Divider sx={{ my: 3 }} />
 
-          <Typography variant="subtitle1" sx={{ mb: 1 }}>Membros alocados (funcionarios)</Typography>
+          <Typography variant="subtitle1" sx={{ mb: 1 }}>Membros alocados (funcionários)</Typography>
           <Controller
             name="memberIds"
             control={control}

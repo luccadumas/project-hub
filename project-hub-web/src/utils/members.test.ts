@@ -1,24 +1,23 @@
 import { describe, expect, it } from 'vitest';
-import type { Member } from '../types';
 import { filterProjectEmployees, filterProjectManagers } from './members';
 
-describe('member filters', () => {
-  const members: Member[] = [
-    { id: 1, name: 'Ana', role: 'gerente' },
-    { id: 2, name: 'Bruno', role: 'funcionario' },
-    { id: 3, name: 'Elisa', role: 'estagiario' },
-    { id: 4, name: 'Carlos', role: 'consultor' },
-  ];
+const members = [
+  { id: 1, name: 'Ana', role: 'manager' as const },
+  { id: 2, name: 'Bruno', role: 'employee' as const },
+  { id: 3, name: 'Elisa', role: 'intern' as const },
+  { id: 4, name: 'Carlos', role: 'consultant' as const },
+];
 
-  it('returns only gerente members for project manager selection', () => {
+describe('member filters', () => {
+  it('returns only manager members for project manager selection', () => {
     expect(filterProjectManagers(members)).toEqual([
-      { id: 1, name: 'Ana', role: 'gerente' },
+      { id: 1, name: 'Ana', role: 'manager' },
     ]);
   });
 
-  it('returns only funcionario members for allocation selection', () => {
+  it('returns only employee members for allocation selection', () => {
     expect(filterProjectEmployees(members)).toEqual([
-      { id: 2, name: 'Bruno', role: 'funcionario' },
+      { id: 2, name: 'Bruno', role: 'employee' },
     ]);
   });
 });

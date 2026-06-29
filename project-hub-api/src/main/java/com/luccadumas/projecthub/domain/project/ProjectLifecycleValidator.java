@@ -17,7 +17,7 @@ public class ProjectLifecycleValidator {
     public void validateManager(MemberRole role, Long memberId) {
         if (!role.canBeManager()) {
             throw new BusinessException(
-                    "Only members with role 'gerente' can be assigned as project manager. Member id: " + memberId);
+                    "Only members with role 'manager' can be assigned as project manager. Member id: " + memberId);
         }
     }
 }

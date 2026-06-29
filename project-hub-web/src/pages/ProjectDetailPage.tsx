@@ -29,6 +29,7 @@ import { useAuth } from '../context/AuthContext';
 import type { ProjectStatus } from '../types';
 import {
   formatCurrency,
+  formatMemberLabel,
   formatStatus,
   PROJECT_STATUSES,
   RiskChip,
@@ -50,7 +51,7 @@ export function ProjectDetailPage() {
   const { id } = useParams();
   const { isAdmin } = useAuth();
   const queryClient = useQueryClient();
-  const [nextStatus, setNextStatus] = useState<ProjectStatus>('EM_ANALISE');
+  const [nextStatus, setNextStatus] = useState<ProjectStatus>('UNDER_ANALYSIS');
   const [selectedMembers, setSelectedMembers] = useState<number[]>([]);
 
   const invalidateProjectData = () => {
@@ -98,7 +99,7 @@ export function ProjectDetailPage() {
   if (projectQuery.isError || !projectQuery.data) {
     return (
       <AppLayout>
-        <Alert severity="error">Projeto nao encontrado</Alert>
+        <Alert severity="error">Projeto não encontrado</Alert>
       </AppLayout>
     );
   }
@@ -110,7 +111,7 @@ export function ProjectDetailPage() {
     <AppLayout>
       <PageHeader
         title={project.name}
-        subtitle="Detalhes, status e alocacao de equipe"
+        subtitle="Detalhes, status e alocação de equipe"
         action={
           isAdmin ? (
             <Button
@@ -131,22 +132,22 @@ export function ProjectDetailPage() {
       </Box>
 
       <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { md: '1.6fr 1fr' } }}>
-        <ContentCard title="Informacoes do projeto">
+        <ContentCard title="Informações do projeto">
           <Typography color="text.secondary" sx={{ mb: 2, lineHeight: 1.7 }}>
-            {project.description || 'Sem descricao cadastrada.'}
+            {project.description || 'Sem descrição cadastrada.'}
           </Typography>
           <Divider />
-          <InfoRow label="Gerente responsavel" value={project.managerName} />
+          <InfoRow label="Gerente responsável" value={project.managerName} />
           <Divider />
-          <InfoRow label="Orcamento total" value={formatCurrency(project.totalBudget)} />
+          <InfoRow label="Orçamento total" value={formatCurrency(project.totalBudget)} />
           <Divider />
-          <InfoRow label="Data de inicio" value={formatDate(project.startDate)} />
+          <InfoRow label="Data de início" value={formatDate(project.startDate)} />
           <Divider />
-          <InfoRow label="Previsao de termino" value={formatDate(project.expectedEndDate)} />
+          <InfoRow label="Previsão de término" value={formatDate(project.expectedEndDate)} />
           {project.actualEndDate && (
             <>
               <Divider />
-              <InfoRow label="Termino real" value={formatDate(project.actualEndDate)} />
+              <InfoRow label="Término real" value={formatDate(project.actualEndDate)} />
             </>
           )}
           <Divider sx={{ my: 2 }} />
@@ -158,7 +159,7 @@ export function ProjectDetailPage() {
               {project.members.map((member) => (
                 <Chip
                   key={member.id}
-                  label={`${member.name} (${member.role})`}
+                  label={formatMemberLabel(member.name, member.role)}
                   sx={{ bgcolor: '#f1f5f9', fontWeight: 500 }}
                 />
               ))}
@@ -181,7 +182,7 @@ export function ProjectDetailPage() {
                 ))}
               </TextField>
               {statusMutation.isError && (
-                <Alert severity="error" sx={{ mt: 2 }}>Transicao de status invalida</Alert>
+                <Alert severity="error" sx={{ mt: 2 }}>Transição de status inválida</Alert>
               )}
               <Button
                 fullWidth
@@ -236,7 +237,7 @@ export function ProjectDetailPage() {
                 )}
                 disabled={membersMutation.isPending}
               >
-                Salvar alocacao
+                Salvar alocação
               </Button>
             </ContentCard>
           </Box>
